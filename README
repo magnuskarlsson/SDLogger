@@ -1,0 +1,8 @@
+SDLogger is an open source project inspired by the OpenLog project to create a simple data logger for full-size SD memory cards.
+
+Ported code:
+
+OpenLog_v1:    Port of OpenLog 1.61 compiled with support for FAT32 and SD cards up to 16GB
+OpenLog_v2:    Port of OpenLog 2.2 (not fully functional yet)
+fatfs_chan:    Port of ChaN FatFs R0.08a
+arduino-0018:  Core file and SdFat library for arduino-0018
