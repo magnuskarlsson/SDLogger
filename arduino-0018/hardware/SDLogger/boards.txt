@@ -1,0 +1,16 @@
+##############################################################
+
+SDLogger.name=SDLogger
+SDLogger.upload.protocol=stk500
+SDLogger.upload.maximum_size=63488
+SDLogger.upload.speed=57600
+SDLogger.bootloader.low_fuses=0xFF
+SDLogger.bootloader.high_fuses=0xDC
+SDLogger.bootloader.extended_fuses=0xFD
+SDLogger.bootloader.path=atmega644p
+SDLogger.bootloader.file=ATmegaBOOT_644P.hex
+SDLogger.bootloader.unlock_bits=0x3F
+SDLogger.bootloader.lock_bits=0x0F
+SDLogger.build.mcu=atmega644p
+SDLogger.build.f_cpu=14745600L
+SDLogger.build.core=arduino

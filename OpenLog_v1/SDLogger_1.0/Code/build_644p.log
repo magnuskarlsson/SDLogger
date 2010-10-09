@@ -1,0 +1,57 @@
+
+-------- begin --------
+avr-gcc.exe (WinAVR 20090313) 4.3.2
+Copyright (C) 2008 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Compiling C: main.c
+avr-gcc -c -mmcu=atmega644p -I. -gdwarf-2 -DF_CPU=14745600UL -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wall -Wstrict-prototypes -Wa,-adhlns=./main.lst  -std=gnu99 -Wundef -MMD -MP -MF .dep/main.o.d main.c -o main.o 
+
+Compiling C: byteordering.c
+avr-gcc -c -mmcu=atmega644p -I. -gdwarf-2 -DF_CPU=14745600UL -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wall -Wstrict-prototypes -Wa,-adhlns=./byteordering.lst  -std=gnu99 -Wundef -MMD -MP -MF .dep/byteordering.o.d byteordering.c -o byteordering.o 
+
+Compiling C: partition.c
+avr-gcc -c -mmcu=atmega644p -I. -gdwarf-2 -DF_CPU=14745600UL -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wall -Wstrict-prototypes -Wa,-adhlns=./partition.lst  -std=gnu99 -Wundef -MMD -MP -MF .dep/partition.o.d partition.c -o partition.o 
+
+Compiling C: sd_raw.c
+avr-gcc -c -mmcu=atmega644p -I. -gdwarf-2 -DF_CPU=14745600UL -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wall -Wstrict-prototypes -Wa,-adhlns=./sd_raw.lst  -std=gnu99 -Wundef -MMD -MP -MF .dep/sd_raw.o.d sd_raw.c -o sd_raw.o 
+
+Compiling C: fat.c
+avr-gcc -c -mmcu=atmega644p -I. -gdwarf-2 -DF_CPU=14745600UL -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wall -Wstrict-prototypes -Wa,-adhlns=./fat.lst  -std=gnu99 -Wundef -MMD -MP -MF .dep/fat.o.d fat.c -o fat.o 
+
+Compiling C: uart.c
+avr-gcc -c -mmcu=atmega644p -I. -gdwarf-2 -DF_CPU=14745600UL -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wall -Wstrict-prototypes -Wa,-adhlns=./uart.lst  -std=gnu99 -Wundef -MMD -MP -MF .dep/uart.o.d uart.c -o uart.o 
+
+Linking: main.elf
+avr-gcc -mmcu=atmega644p -I. -gdwarf-2 -DF_CPU=14745600UL -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -Wall -Wstrict-prototypes -Wa,-adhlns=main.o  -std=gnu99 -Wundef -MMD -MP -MF .dep/main.elf.d main.o byteordering.o partition.o sd_raw.o fat.o uart.o --output main.elf -Wl,-Map=main.map,--cref     -lm
+
+Creating load file for Flash: main.hex
+avr-objcopy -O ihex -R .eeprom main.elf main.hex
+
+Creating load file for EEPROM: main.eep
+avr-objcopy -j .eeprom --set-section-flags=.eeprom="alloc,load" \
+	--change-section-lma .eeprom=0 --no-change-warnings -O ihex main.elf main.eep || exit 0
+
+Creating Extended Listing: main.lss
+avr-objdump -h -S main.elf > main.lss
+
+Creating Symbol Table: main.sym
+avr-nm -n main.elf > main.sym
+
+Size after:
+AVR Memory Usage
+----------------
+Device: atmega644p
+
+Program:   38130 bytes (58.2% Full)
+(.text + .data + .bootloader)
+
+Data:       2017 bytes (49.2% Full)
+(.data + .bss + .noinit)
+
+
+
+-------- end --------
+

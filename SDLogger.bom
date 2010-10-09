@@ -1,0 +1,16 @@
+Item   Qty    Ref. designator     Part no.            Distributer  Description                Package      Type      
+1      4      C1, C3, C4, C6      490-1318-1-ND       DigiKey      Cap .1uF 10V 10% 0402      CAP-0402      SMD      
+2      1      C2                  490-1319-1-ND       DigiKey      Cap 1uF 6.3V 20% 0402      CAP-0402      SMD      
+3      1      C5                  587-1966-1-ND       DigiKey      Cap 4.7uF 4V 0402          CAP-0402      SMD      
+4      2      C7, C8              490-1283-1-ND       DigiKey      Cap 22pF 50V 5% 0402       CAP-0402      SMD      
+5      1      D1                  160-1414-1-ND       DigiKey      LED clear green 0805       CHIPLED_0805  SMD      
+6      1      D2                  160-1415-1-ND       DigiKey      LED clear red 0805         CHIPLED_0805  SMD      
+7      1      IC1                 576-1267-1-ND       DigiKey      3.3V reg. MIC5207-3.3YM5   SOT23-5       SMD      
+8      1      IC2                 ATMEGA644P-20AU-ND  DigiKey      Atmel Atmega644P-AU        TQFP44        SMD      
+9      1      J1                  SD-RSMT-2-MQ        Mouser       3M SD card connector                     SMD      
+10     1      L1                  490-4030-1-ND       DigiKey      22uH 13mA 0805             IND-0805      SMD      
+11     1      L2                  587-1691-1-ND       DigiKey      10uH 0805                  IND-0805      SMD      
+12     1      Q1                  COM-07846           SparkFun     Xtal, 14.7456MHz SMD 5X3   5X3           SMD      
+13     4      R1, R2, R5, R6      P1.0KJCT-ND         DigiKey      Res. 1K 1/10W 5% 0402      RES-0402      SMD      
+14     1      R3                  P100JCT-ND          DigiKey      Res. 100 1/10W 5% 0402     RES-0402      SMD      
+15     1      R4                  P10KJCT-ND          DigiKey      Res. 10K 1/10W 5% 0402     RES-0402      SMD      
