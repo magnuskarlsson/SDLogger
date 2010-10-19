@@ -14,3 +14,21 @@ SDLogger.bootloader.lock_bits=0x0F
 SDLogger.build.mcu=atmega644p
 SDLogger.build.f_cpu=14745600L
 SDLogger.build.core=arduino
+
+##############################################################
+
+SDLogger2.name=SDLogger with buffered serial Tx
+SDLogger2.upload.protocol=stk500
+SDLogger2.upload.maximum_size=63488
+SDLogger2.upload.speed=57600
+SDLogger2.bootloader.low_fuses=0xFF
+SDLogger2.bootloader.high_fuses=0xDC
+SDLogger2.bootloader.extended_fuses=0xFD
+SDLogger2.bootloader.path=atmega644p
+SDLogger2.bootloader.file=ATmegaBOOT_644P.hex
+SDLogger2.bootloader.unlock_bits=0x3F
+SDLogger2.bootloader.lock_bits=0x0F
+SDLogger2.build.mcu=atmega644p
+SDLogger2.build.f_cpu=14745600L
+SDLogger2.build.core=SDLogger
+
