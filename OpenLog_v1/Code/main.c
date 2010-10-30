@@ -7,12 +7,16 @@
  */
 
 /*
-    12-3-09
-    Copyright SparkFun Electronics© 2010
-    Nathan Seidle
-    spark at sparkfun.com
-    
-    OpenLog is a simple serial logger based on the ATmega328 running at 16MHz. The ATmega328
+  12-3-09
+  Copyright SparkFun Electronics© 2010
+  Nathan Seidle
+  spark at sparkfun.com
+
+  OpenLog hardware and firmware are released under the Creative Commons Share Alike v3.0 license.
+  http://creativecommons.org/licenses/by-sa/3.0/
+  Feel free to use, distribute, and sell varients of OpenLog. All we ask is that you include attribution of 'Based on OpenLog by SparkFun'.
+
+  OpenLog is a simple serial logger based on the ATmega328 running at 16MHz. The ATmega328
   should be able to talk to high capacity (larger than 2GB) SD cards. The whole purpose of this
   logger was to create a logger that just powered up and worked. OpenLog ships with standard 
   57600bps serial bootloader running at 16MHz so you can load new firmware with a simple serial
@@ -230,15 +234,25 @@
 */
 
 /*
-    SDLogger is a simple serial logger based on the ATmega644p running at 14,7456MHz. 
+  SDLogger is a simple serial logger using an ATmega644p running at 14,7456MHz (based on OpenLog by SparkFun). 
+  
+  FAT16/Fat32 code Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+  OpenLog code Copyright SparkFun Electronics© 2010
+  SDLogger code Copyright (c) 2010 by Magnus Karlsson <magnus@saanlima.com>
+ 
+  SDLogger firmware is released under the Creative Commons Share Alike v3.0 license.
+  http://creativecommons.org/licenses/by-sa/3.0/
+  
+  Firmware history:
+  v1.0
+  OpenLog version 1.61 ported to SDLogger hardware architecture. 
     
-    Firmware history:
-    v1.0
-    OpenLog version 1.61 ported to SDLogger hardware architecture. 
+  v1.1
+  Incleased buffer size to 4*512 = 2048 bytes.
+  Added 230400 baud rate
     
-    v1.1
-    Incleased buffer size to 4*512 = 2048 bytes.
-    Added 230400 baud rate
+  v1.2
+  Added production test mode
     
 */
 
@@ -473,10 +487,11 @@ uint8_t append_file(char* file_name);
 
 void newlog(void);
 void seqlog(void);
+void test_shell(void);
 void command_shell(void);
+void testCheck(uint8_t);
 
 char check_emergency_reset(void);
-void set_default_settings(void);
 void read_system_settings(void);
 
 void read_config_file(void);
@@ -544,6 +559,8 @@ struct command_arg
 #define MODE_NEWLOG  0
 #define MODE_SEQLOG 1
 #define MODE_COMMAND 2
+#define MODE_TEST 3
+
 #define MAX_COUNT_COMMAND_LINE_ARGS 4
 
 //Global variables
@@ -579,6 +596,9 @@ int main(void)
   if(setting_system_mode == MODE_SEQLOG)
     seqlog();
 
+  if(setting_system_mode == MODE_TEST)
+    test_shell();
+
   //Once either one of these modes exits, go to normal command mode, which is called by returning to main()
   command_shell();
 
@@ -607,7 +627,17 @@ void ioinit(void)
 
   if(check_emergency_reset()) //Look to see if the RX pin is being pulled low
   {
-    set_default_settings(); //Reset baud, escape characters, escape number, system mode
+     //Reset UART to 9600bps
+    EEPROM_write(LOCATION_BAUD_SETTING, BAUD_9600);
+
+    //Reset system to new log mode
+    EEPROM_write(LOCATION_SYSTEM_SETTING, MODE_NEWLOG);
+
+    //Reset escape character to ctrl+z
+    EEPROM_write(LOCATION_ESCAPE_CHAR, 26); 
+
+    //Reset number of escape characters to 3
+    EEPROM_write(LOCATION_MAX_ESCAPE_CHAR, 3);
 
     init_media(); //Try to setup the SD card so we can record these new settings
     
@@ -794,41 +824,41 @@ void read_config_file(void)
     */
     
     //We now have the settings loaded into the global variables. Now check if they're different from EEPROM settings
-
-    if(new_system_baud != setting_uart_speed)
+    if((new_system_baud != setting_uart_speed) ||
+       (new_system_mode != setting_system_mode) ||
+       (new_system_escape != setting_escape_character) ||
+       (new_system_max_escape != setting_max_escape_character))
     {
-      //If the baud rate from the file is different from the current setting,
-      //Then update the setting to the file setting
-      //And re-init the UART
-      EEPROM_write(LOCATION_BAUD_SETTING, new_system_baud);
-      setting_uart_speed = new_system_baud;
-      uart_init(setting_uart_speed);
+      if(new_system_baud != setting_uart_speed)
+      {
+        //If the baud rate from the file is different from the current setting,
+        //Then update the setting to the file setting
+        //And re-init the UART
+        EEPROM_write(LOCATION_BAUD_SETTING, new_system_baud);
+        setting_uart_speed = new_system_baud;
+        uart_init(setting_uart_speed);
+      }
+      if(new_system_mode != setting_system_mode)
+      {
+        //Goto new system mode
+        setting_system_mode = new_system_mode;
+        EEPROM_write(LOCATION_SYSTEM_SETTING, setting_system_mode);
+      }
+      if(new_system_escape != setting_escape_character)
+      {
+        //Goto new system escape char
+        setting_escape_character = new_system_escape;
+        EEPROM_write(LOCATION_ESCAPE_CHAR, setting_escape_character); 
+      }
+      if(new_system_max_escape != setting_max_escape_character)
+      {
+        //Goto new max escape
+        setting_max_escape_character = new_system_max_escape;
+        EEPROM_write(LOCATION_MAX_ESCAPE_CHAR, setting_max_escape_character);
+      }
+      record_config_file(); //If we corrected some values because the config file was corrupt, then overwrite any corruption
+      //All done! New settings are loaded. System will now operate off new config settings found in file.
     }
-
-    if(new_system_mode != setting_system_mode)
-    {
-      //Goto new system mode
-      setting_system_mode = new_system_mode;
-      EEPROM_write(LOCATION_SYSTEM_SETTING, setting_system_mode);
-    }
-    
-    if(new_system_escape != setting_escape_character)
-    {
-      //Goto new system escape char
-      setting_escape_character = new_system_escape;
-      EEPROM_write(LOCATION_ESCAPE_CHAR, setting_escape_character); 
-    }
-    
-    if(new_system_max_escape != setting_max_escape_character)
-    {
-      //Goto new max escape
-      setting_max_escape_character = new_system_max_escape;
-      EEPROM_write(LOCATION_MAX_ESCAPE_CHAR, setting_max_escape_character);
-    }
-    
-    record_config_file(); //If we corrected some values because the config file was corrupt, then overwrite any corruption
-  
-    //All done! New settings are loaded. System will now operate off new config settings found in file.
   }
   else
   {
@@ -940,63 +970,59 @@ void record_config_file(void)
   }
 }
 
-//Resets all the system settings to safe values
-void set_default_settings(void)
-{
-  //Reset UART to 9600bps
-  EEPROM_write(LOCATION_BAUD_SETTING, BAUD_9600);
-
-  //Reset system to new log mode
-  EEPROM_write(LOCATION_SYSTEM_SETTING, MODE_NEWLOG);
-
-  //Reset escape character to ctrl+z
-  EEPROM_write(LOCATION_ESCAPE_CHAR, 26); 
-
-  //Reset number of escape characters to 3
-  EEPROM_write(LOCATION_MAX_ESCAPE_CHAR, 3);
-
-  //These settings are not recorded to the config file
-  //We can't do it here because we are not sure the FAT system is init'd
-}
-
 //Reads the current system settings from EEPROM
 //If anything looks weird, reset setting to default value
 void read_system_settings(void)
 {
-  //Read what the current UART speed is from EEPROM memory
-  //Default is 9600
-  setting_uart_speed = EEPROM_read(LOCATION_BAUD_SETTING);
-  if(setting_uart_speed > 10) 
-  {
-    setting_uart_speed = BAUD_9600; //Reset UART to 9600 if there is no speed stored
-    EEPROM_write(LOCATION_BAUD_SETTING, setting_uart_speed);
-  }
-
   //Determine the system mode we should be in
   //Default is NEWLOG mode
   setting_system_mode = EEPROM_read(LOCATION_SYSTEM_SETTING);
-  if(setting_system_mode > 5) 
+  if(setting_system_mode == MODE_TEST)
   {
+    // Reset all settings to default values
+    setting_uart_speed = BAUD_9600; //Reset UART to 9600
     setting_system_mode = MODE_NEWLOG; //By default, unit will turn on and go to new file logging
-    EEPROM_write(LOCATION_SYSTEM_SETTING, setting_system_mode);
-  }
-
-  //Read the escape_character
-  //ASCII(26) is ctrl+z
-  setting_escape_character = EEPROM_read(LOCATION_ESCAPE_CHAR);
-  if(setting_escape_character == 0 || setting_escape_character == 255) 
-  {
     setting_escape_character = 26; //Reset escape character to ctrl+z
-    EEPROM_write(LOCATION_ESCAPE_CHAR, setting_escape_character);
-  }
-
-  //Read the number of escape_characters to look for
-  //Default is 3
-  setting_max_escape_character = EEPROM_read(LOCATION_MAX_ESCAPE_CHAR);
-  if(setting_max_escape_character == 0 || setting_max_escape_character == 255) 
-  {
     setting_max_escape_character = 3; //Reset number of escape characters to 3
+    EEPROM_write(LOCATION_SYSTEM_SETTING, setting_system_mode);
+    EEPROM_write(LOCATION_BAUD_SETTING, setting_uart_speed);
+    EEPROM_write(LOCATION_ESCAPE_CHAR, setting_escape_character);
     EEPROM_write(LOCATION_MAX_ESCAPE_CHAR, setting_max_escape_character);
+  }
+  else
+  {
+    if(setting_system_mode > 5)
+    {
+      setting_system_mode = MODE_NEWLOG; //By default, unit will turn on and go to new file logging
+      EEPROM_write(LOCATION_SYSTEM_SETTING, setting_system_mode);
+    }
+
+    //Read what the current UART speed is from EEPROM memory
+    //Default is 9600
+    setting_uart_speed = EEPROM_read(LOCATION_BAUD_SETTING);
+    if(setting_uart_speed > 10) 
+    {
+      setting_uart_speed = BAUD_9600; //Reset UART to 9600 if there is no speed stored
+      EEPROM_write(LOCATION_BAUD_SETTING, setting_uart_speed);
+    }
+
+    //Read the escape_character
+    //ASCII(26) is ctrl+z
+    setting_escape_character = EEPROM_read(LOCATION_ESCAPE_CHAR);
+    if(setting_escape_character == 0 || setting_escape_character == 255) 
+    {
+      setting_escape_character = 26; //Reset escape character to ctrl+z
+      EEPROM_write(LOCATION_ESCAPE_CHAR, setting_escape_character);
+    }
+
+    //Read the number of escape_characters to look for
+    //Default is 3
+    setting_max_escape_character = EEPROM_read(LOCATION_MAX_ESCAPE_CHAR);
+    if(setting_max_escape_character == 0 || setting_max_escape_character == 255) 
+    {
+      setting_max_escape_character = 3; //Reset number of escape characters to 3
+      EEPROM_write(LOCATION_MAX_ESCAPE_CHAR, setting_max_escape_character);
+    }
   }
 }
 
@@ -1204,6 +1230,150 @@ void create_lots_of_files(void)
 }
 #endif
 
+
+void test_shell(void)
+{
+  //provide a simple shell
+  char buffer[24];
+  uint8_t testFail;
+
+  while(1)
+  {
+    uart_puts_p(PSTR("\nTest menu:\n"));
+    uart_puts_p(PSTR("1) Red LED toggle\n"));
+    uart_puts_p(PSTR("2) Serial2 loopback test (jumper between RX2 and TX2)\n"));
+    uart_puts_p(PSTR("3) Analog loopback test 1 (jumper between AIN0 and AIN1)\n"));
+    uart_puts_p(PSTR("4) Analog loopback test 2 (jumper between AIN2 and AIN3)\n"));
+    uart_puts_p(PSTR("5) I2C loopback test (jumper between SCL and SDA)\n"));
+    uart_puts_p(PSTR("6) SD switch test 1 (completely remove SD card)\n"));
+    uart_puts_p(PSTR("7) SD switch test 2 (insert write-enabled SD card)\n"));
+    uart_puts_p(PSTR("?) Print Test menu\n"));
+
+    while(1)
+    {
+      //print prompt
+      uart_putc('>');
+
+      //read command
+      char* command = buffer;
+      if(read_line(command, sizeof(buffer)) < 1)
+        continue;
+
+      //Argument 1: The actual command
+      char* command_arg = get_cmd_arg(0);
+
+      //execute command
+      if(strcmp_P(command_arg, PSTR("1")) == 0)
+      {
+         STAT2_PORT ^= (1<<STAT2);
+      }
+      else if(strcmp_P(command_arg, PSTR("2")) == 0)
+      {
+        testFail = 0;
+        DDRD = 0x08; // TX2 set to output
+        delay_us(10);
+        PORTD = 0x08; // TX2 set high
+        delay_us(10);
+        if((PIND & 0x04) == 0x00)
+          testFail = 1;
+        PORTD = 0x00; // TX2 set low
+        delay_us(10);
+        if((PIND & 0x04) == 0x04)
+          testFail = 1;
+        DDRD = 0x00;
+        testCheck(testFail);
+      }
+      else if(strcmp_P(command_arg, PSTR("3")) == 0)
+      {
+        testFail = 0;
+        DDRA = 0x02; // AIN1 set to output
+        delay_us(10);
+        PORTA = 0x02; // AIN1 set high
+        delay_us(10);
+        if((PINA & 0x01) == 0x00)
+          testFail = 1;
+        PORTA = 0x00; // AIN1 set low
+        delay_us(10);
+        if((PINA & 0x01) == 0x01)
+          testFail = 1;
+        DDRA = 0x00;
+        testCheck(testFail);
+      }
+      else if(strcmp_P(command_arg, PSTR("4")) == 0)
+      {
+        testFail = 0;
+        DDRA = 0x08; // AIN3 set to output
+        delay_us(10);
+        PORTA = 0x08; // AIN3 set high
+        delay_us(10);
+        if((PINA & 0x04) == 0x00)
+          testFail = 1;
+        PORTA = 0x00; // AIN3 set low
+        delay_us(10);
+        if((PINA & 0x04) == 0x04)
+          testFail = 1;
+        DDRA = 0x00;
+        testCheck(testFail);
+      }
+      else if(strcmp_P(command_arg, PSTR("5")) == 0)
+      {
+        testFail = 0;
+        DDRC = 0x02; // SDA set to output
+        delay_us(10);
+        PORTC = 0x02; // SDA set high
+        delay_us(10);
+        if((PINC & 0x01) == 0x00)
+          testFail = 1;
+        PORTC = 0x00; // SDA set low
+        delay_us(10);
+        if((PINC & 0x01) == 0x01)
+          testFail = 1;
+        DDRC = 0x00;
+        testCheck(testFail);
+      }
+      else if(strcmp_P(command_arg, PSTR("6")) == 0)
+      {
+        testFail = 0;
+        DDRC = 0x00; // all inputs
+        delay_us(10);
+        PORTC = 0x0c; // pull-ups on CD and WP lines
+        delay_us(10);
+        if((PINC & 0x0c) != 0x0c)
+          testFail = 1;
+        PORTC = 0x00;
+        testCheck(testFail);
+      }
+      else if(strcmp_P(command_arg, PSTR("7")) == 0)
+      {
+        testFail = 0;
+        DDRC = 0x00; // all inputs
+        delay_us(10);
+        PORTC = 0x0c; // pull-ups on CD and WP lines
+        delay_us(10);
+        if((PINC & 0x0c) != 0x00)
+          testFail = 1;
+        PORTC = 0x00;
+        testCheck(testFail);
+      }
+      else if(strcmp_P(command_arg, PSTR("?")) == 0)
+      {
+        break;
+      }
+      else if(strcmp_P(command_arg, PSTR("help")) == 0)
+      {
+        break;
+      }
+    }
+  }
+}
+
+void testCheck(uint8_t flag)
+{
+  if(flag)
+    uart_puts_p(PSTR("FAIL!\n"));
+  else
+    uart_puts_p(PSTR("OK\n"));
+}
 
 void command_shell(void)
 {
@@ -2147,7 +2317,7 @@ uint8_t print_disk_info(const struct fat_fs_struct* fs)
 
 void print_menu(void)
 {
-  uart_puts_p(PSTR("\nSDLogger v1.1\n"));
+  uart_puts_p(PSTR("\nSDLogger v1.2\n"));
   uart_puts_p(PSTR("Available commands:\n"));
   uart_puts_p(PSTR("new <file>\t\t: Creates <file>\n"));
   uart_puts_p(PSTR("append <file>\t\t: Appends text to end of <file>. The text is read from the UART in a stream and is not echoed. Finish by sending Ctrl+z (ASCII 26)\n"));
