@@ -5,5 +5,6 @@ Ported code:
 OpenLog_v1:    Port of OpenLog 1.61 compiled with larger buffer and support for FAT32 and SD cards up to 16GB
 OpenLog_v2:    Port of OpenLog 2.2 (not fully functional yet)
 fatfs_chan:    Port of ChaN FatFs R0.08a
+petit_fatfs:   Port of ChaN petit FatFs R0.02 
 arduino-0018:  Core file and SdFat library for arduino-0018
 arduino-0021:  Core file and SdFat library for arduino-0021
