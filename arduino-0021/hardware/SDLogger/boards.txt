@@ -32,3 +32,21 @@ SDLogger2.build.mcu=atmega644p
 SDLogger2.build.f_cpu=14745600L
 SDLogger2.build.core=SDLogger
 
+##############################################################
+
+OpenLog.name=SDLogger firmware restore
+OpenLog.upload.protocol=stk500
+OpenLog.upload.maximum_size=63488
+OpenLog.upload.speed=57600
+OpenLog.bootloader.low_fuses=0xFF
+OpenLog.bootloader.high_fuses=0xDC
+OpenLog.bootloader.extended_fuses=0xFD
+OpenLog.bootloader.path=atmega644p
+OpenLog.bootloader.file=ATmegaBOOT_644P.hex
+OpenLog.bootloader.unlock_bits=0x3F
+OpenLog.bootloader.lock_bits=0x0F
+OpenLog.build.mcu=atmega644p
+OpenLog.build.f_cpu=14745600L
+OpenLog.build.core=Restore
+
+
