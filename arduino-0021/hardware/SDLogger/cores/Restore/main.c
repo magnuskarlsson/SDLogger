@@ -253,6 +253,9 @@
     
   v1.2
   Added production test mode
+  
+  v1.3
+  Added combined test mode
     
 */
 
@@ -1032,7 +1035,6 @@ void read_system_settings(void)
 char check_emergency_reset(void)
 {
   uint8_t i;
-  
   DDRD &= ~(1<<0); //Turn the RX pin into an input
   PORTD |= (1<<0); //Push a 1 onto RX pin to enable internal pull-up
 
@@ -1247,8 +1249,9 @@ void test_shell(void)
     uart_puts_p(PSTR("3) Analog loopback test 1 (jumper between AIN0 and AIN1)\n"));
     uart_puts_p(PSTR("4) Analog loopback test 2 (jumper between AIN2 and AIN3)\n"));
     uart_puts_p(PSTR("5) I2C loopback test (jumper between SCL and SDA)\n"));
-    uart_puts_p(PSTR("6) SD switch test 1 (completely remove SD card)\n"));
-    uart_puts_p(PSTR("7) SD switch test 2 (insert write-enabled SD card)\n"));
+    uart_puts_p(PSTR("6) Test 1-5 in one step\n"));
+    uart_puts_p(PSTR("7) SD switch test 1 (completely remove SD card)\n"));
+    uart_puts_p(PSTR("8) SD switch test 2 (insert write-enabled SD card)\n"));
     uart_puts_p(PSTR("?) Print Test menu\n"));
 
     while(1)
@@ -1336,6 +1339,62 @@ void test_shell(void)
       else if(strcmp_P(command_arg, PSTR("6")) == 0)
       {
         testFail = 0;
+        STAT1_PORT |= (1<<STAT1);
+        STAT2_PORT |= (1<<STAT2);
+        delay_ms(500);
+        DDRD = 0x08; // TX2 set to output
+        delay_us(10);
+        PORTD = 0x08; // TX2 set high
+        delay_us(10);
+        if((PIND & 0x04) == 0x00)
+          testFail = 1;
+        PORTD = 0x00; // TX2 set low
+        delay_us(10);
+        if((PIND & 0x04) == 0x04)
+          testFail = 1;
+        DDRD = 0x00;
+        DDRA = 0x02; // AIN1 set to output
+        delay_us(10);
+        PORTA = 0x02; // AIN1 set high
+        delay_us(10);
+        if((PINA & 0x01) == 0x00)
+          testFail = 1;
+        PORTA = 0x00; // AIN1 set low
+        delay_us(10);
+        if((PINA & 0x01) == 0x01)
+          testFail = 1;
+        DDRA = 0x00;
+        DDRA = 0x08; // AIN3 set to output
+        delay_us(10);
+        PORTA = 0x08; // AIN3 set high
+        delay_us(10);
+        if((PINA & 0x04) == 0x00)
+          testFail = 1;
+        PORTA = 0x00; // AIN3 set low
+        delay_us(10);
+        if((PINA & 0x04) == 0x04)
+          testFail = 1;
+        DDRA = 0x00;
+        DDRC = 0x02; // SDA set to output
+        delay_us(10);
+        PORTC = 0x02; // SDA set high
+        delay_us(10);
+        if((PINC & 0x01) == 0x00)
+          testFail = 1;
+        PORTC = 0x00; // SDA set low
+        delay_us(10);
+        if((PINC & 0x01) == 0x01)
+          testFail = 1;
+        DDRC = 0x00;
+        if (testFail == 1)
+          STAT1_PORT &= ~(1<<STAT1);
+        else
+          STAT2_PORT &= ~(1<<STAT2);
+        testCheck(testFail);
+      }
+      else if(strcmp_P(command_arg, PSTR("7")) == 0)
+      {
+        testFail = 0;
         DDRC = 0x00; // all inputs
         delay_us(10);
         PORTC = 0x0c; // pull-ups on CD and WP lines
@@ -1345,7 +1404,7 @@ void test_shell(void)
         PORTC = 0x00;
         testCheck(testFail);
       }
-      else if(strcmp_P(command_arg, PSTR("7")) == 0)
+      else if(strcmp_P(command_arg, PSTR("8")) == 0)
       {
         testFail = 0;
         DDRC = 0x00; // all inputs
@@ -2322,7 +2381,7 @@ uint8_t print_disk_info(const struct fat_fs_struct* fs)
 
 void print_menu(void)
 {
-  uart_puts_p(PSTR("\nSDLogger v1.2\n"));
+  uart_puts_p(PSTR("\nSDLogger v1.3\n"));
   uart_puts_p(PSTR("Available commands:\n"));
   uart_puts_p(PSTR("new <file>\t\t: Creates <file>\n"));
   uart_puts_p(PSTR("append <file>\t\t: Appends text to end of <file>. The text is read from the UART in a stream and is not echoed. Finish by sending Ctrl+z (ASCII 26)\n"));
