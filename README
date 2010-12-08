@@ -1,4 +1,4 @@
-SDLogger is an open source project inspired by Nathan Seidle's OpenLog (http://github.com/nseidle/OpenLog/wiki) to create a simple data logger for full-size high-density SD memory cards.
+SDLogger is an open source project based on Nathan Seidle's OpenLog (http://github.com/nseidle/OpenLog/wiki) to create a simple data logger for full-size high-density SD memory cards.
 
 Ported code:
 
