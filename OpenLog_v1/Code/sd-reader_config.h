@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2010 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -39,9 +39,7 @@ extern "C"
  * like file and directory handles, set to 0 to use pre-allocated
  * fixed-size handle arrays.
  */
-//Default = 0
 #define USE_DYNAMIC_MEMORY 0
-//#define USE_DYNAMIC_MEMORY 1
 
 /**
  * @}

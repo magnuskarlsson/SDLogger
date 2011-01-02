@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2010 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -71,32 +71,32 @@ extern "C"
  * @}
  */
 
-#define __AVR_ATmega644__
-#define STAT2 1
-
 /* defines for customisation of sd/mmc port access */
 #if defined(__AVR_ATmega8__) || \
     defined(__AVR_ATmega48__) || \
+    defined(__AVR_ATmega48P__) || \
     defined(__AVR_ATmega88__) || \
+    defined(__AVR_ATmega88P__) || \
     defined(__AVR_ATmega168__) || \
-    defined(__AVR_ATmega328__)
+    defined(__AVR_ATmega168P__) || \
+    defined(__AVR_ATmega328P__)
     #define configure_pin_mosi() DDRB |= (1 << DDB3)
     #define configure_pin_sck() DDRB |= (1 << DDB5)
     #define configure_pin_ss() DDRB |= (1 << DDB2)
     #define configure_pin_miso() DDRB &= ~(1 << DDB4)
 
-    #define select_card() PORTB &= ~(1 << PB2)
-    #define unselect_card() PORTB |= (1 << PB2)
+    #define select_card() PORTB &= ~(1 << PORTB2)
+    #define unselect_card() PORTB |= (1 << PORTB2)
 #elif defined(__AVR_ATmega16__) || \
       defined(__AVR_ATmega32__) || \
-      defined(__AVR_ATmega644__)
+      defined(__AVR_ATmega644P__)
     #define configure_pin_mosi() DDRB |= (1 << DDB5)
     #define configure_pin_sck() DDRB |= (1 << DDB7)
     #define configure_pin_ss() DDRB |= (1 << DDB4)
     #define configure_pin_miso() DDRB &= ~(1 << DDB6)
 
-    #define select_card() PORTB |= (1 << STAT2); PORTB &= ~(1 << PB4)
-    #define unselect_card() PORTB &= ~(1 << STAT2); PORTB |= (1 << PB4)
+    #define select_card() PORTB |= (1 << PORTB1); PORTB &= ~(1 << PORTB4)
+    #define unselect_card() PORTB &= ~(1 << PORTB1); PORTB |= (1 << PORTB4)
 #elif defined(__AVR_ATmega64__) || \
       defined(__AVR_ATmega128__) || \
       defined(__AVR_ATmega169__)
@@ -105,19 +105,19 @@ extern "C"
     #define configure_pin_ss() DDRB |= (1 << DDB0)
     #define configure_pin_miso() DDRB &= ~(1 << DDB3)
 
-    #define select_card() PORTB &= ~(1 << PB0)
-    #define unselect_card() PORTB |= (1 << PB0)
+    #define select_card() PORTB &= ~(1 << PORTB0)
+    #define unselect_card() PORTB |= (1 << PORTB0)
 #else
     #error "no sd/mmc pin mapping available!"
 #endif
 
-//#define configure_pin_available() DDRC &= ~(1 << DDC2); PORTC |= (1 << PC2)
-//#define configure_pin_locked() DDRC &= ~(1 << DDC3); PORTC |= (1 << PC3)
+//#define configure_pin_available() DDRC &= ~(1 << DDC4)
+//#define configure_pin_locked() DDRC &= ~(1 << DDC5)
 #define configure_pin_available() //Do nothing
 #define configure_pin_locked() //Do nothing
 
-//#define get_pin_available() ((PINC >> PC2) & 0x01)
-//#define get_pin_locked() ((PINC >> PC3) & 0x01)
+//#define get_pin_available() (PINC & (1 << PINC4))
+//#define get_pin_locked() (PINC & (1 << PINC5))
 #define get_pin_available() (0) //Emulate that the card is present
 #define get_pin_locked() (1) //Emulate that the card is always unlocked
 

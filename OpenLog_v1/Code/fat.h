@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2010 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -89,7 +89,6 @@ struct fat_dir_entry_struct
     offset_t entry_offset;
 };
 
-void fat_clear_handles(void);
 struct fat_fs_struct* fat_open(struct partition_struct* partition);
 void fat_close(struct fat_fs_struct* fs);
 

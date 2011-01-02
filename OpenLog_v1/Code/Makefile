@@ -280,7 +280,7 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 
 SERIAL_AVRDUDE = avrdude
 SERIAL_AVRDUDE_CONFIG = C:\arduino\hardware\tools\avr\etc\avrdude.conf
-SERIAL_AVRDUDE_PORT = COM6
+SERIAL_AVRDUDE_PORT = COM13
 
 #SERIAL_AVRDUDE = C:\arduino\hardware\tools\avr\bin\avrdude
 #SERIAL_AVRDUDE_CONFIG = C:\arduino\hardware\tools\avr\etc\avrdude.conf

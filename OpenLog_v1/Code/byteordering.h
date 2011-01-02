@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2010 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -55,7 +55,6 @@ extern "C"
  * \param[in] val A 32-bit integer in host byte order.
  * \returns The given 32-bit integer converted to little-endian byte order.
  */
-
 
 #if DOXYGEN || LITTLE_ENDIAN || __AVR__
 #define HTOL16(val) (val)

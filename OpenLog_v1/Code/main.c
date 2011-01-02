@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+ * Copyright (c) 2006-2010 by Roland Riegel <feedback@roland-riegel.de>
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -236,9 +236,9 @@
 /*
   SDLogger is a simple serial logger using an ATmega644p running at 14,7456MHz (based on OpenLog by SparkFun). 
   
-  FAT16/Fat32 code Copyright (c) 2006-2009 by Roland Riegel <feedback@roland-riegel.de>
+  FAT16/Fat32 code Copyright (c) 2006-20010 by Roland Riegel <feedback@roland-riegel.de>
   OpenLog code Copyright SparkFun Electronics© 2010
-  SDLogger code Copyright (c) 2010 by Magnus Karlsson <magnus@saanlima.com>
+  SDLogger code Copyright (c) 2010-2011 by Magnus Karlsson <magnus@saanlima.com>
  
   SDLogger firmware is released under the Creative Commons Share Alike v3.0 license.
   http://creativecommons.org/licenses/by-sa/3.0/
@@ -256,7 +256,9 @@
   
   v1.3
   Added combined test mode
-    
+  
+  v1.4
+  Switched to 20101010 version of Roland Reigel's FAT16/FAT32 code
 */
 
 /**
@@ -296,7 +298,7 @@
  * \image html pic02.jpg "The MMC/SD card connector on the soldering side of the circuit board."
  *
  * \section software The software
- * The software is written in pure standard ANSI-C. It might not be the smallest or
+ * The software is written in C (ISO C99). It might not be the smallest or
  * the fastest one, but I think it is quite flexible. See the project's
  * <a href="http://www.roland-riegel.de/sd-reader/benchmarks/">benchmark page</a> to get an
  * idea of the possible data rates.
@@ -420,10 +422,9 @@
  * \section acknowledgements Acknowledgements
  * Thanks go to Ulrich Radig, who explained on his homepage how to interface
  * MMC cards to the Atmel microcontroller (http://www.ulrichradig.de/).
- * I adapted his work for my circuit. Although this is a very simple
- * solution, I had no problems using it.
+ * I adapted his work for my circuit.
  * 
- * \section copyright Copyright 2006-2009 by Roland Riegel
+ * \section copyright Copyright 2006-2010 by Roland Riegel
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation (http://www.gnu.org/copyleft/gpl.html).
@@ -2086,7 +2087,7 @@ void init_media(void)
   }
 
   //Make sure all file handles are cleared
-  fat_clear_handles();
+  //fat_clear_handles();
 
   /* open first partition */
   partition = partition_open(sd_raw_read,
@@ -2377,7 +2378,7 @@ uint8_t print_disk_info(const struct fat_fs_struct* fs)
 
 void print_menu(void)
 {
-  uart_puts_p(PSTR("\nSDLogger v1.3\n"));
+  uart_puts_p(PSTR("\nSDLogger v1.4\n"));
   uart_puts_p(PSTR("Available commands:\n"));
   uart_puts_p(PSTR("new <file>\t\t: Creates <file>\n"));
   uart_puts_p(PSTR("append <file>\t\t: Appends text to end of <file>. The text is read from the UART in a stream and is not echoed. Finish by sending Ctrl+z (ASCII 26)\n"));
